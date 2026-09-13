@@ -1,0 +1,216 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>buoy vaults — performance</title>
+<style>
+  :root {
+    --bg:#fbfbfa; --panel:#fff; --ink:#1a1a18; --ink2:#5c5c56; --ink3:#8a8a82;
+    --line:#e4e4df; --accent:#1f6f53; --accent-bg:#e8f2ee; --warn:#8a5a1f;
+    --pos:#1f6f53; --neg:#a33a2a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#15161a; --panel:#1c1e23; --ink:#e9e9e4; --ink2:#a8a89f; --ink3:#7b7b73;
+      --line:#2c2f36; --accent:#5fbf99; --accent-bg:#1d3630; --warn:#d0a05a;
+      --pos:#5fbf99; --neg:#e08472;
+    }
+  }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:32px 20px 64px; }
+  h1 { font-size:22px; letter-spacing:-.01em; margin:0 0 4px; font-weight:650; }
+  .sub { color:var(--ink2); margin:0 0 22px; font-size:13px; }
+  .scroll { overflow-x:auto; background:var(--panel); border:1px solid var(--line);
+            border-radius:10px; }
+  table { border-collapse:separate; border-spacing:0; width:100%; font-variant-numeric:tabular-nums; }
+  th,td { padding:10px 12px; text-align:right; white-space:nowrap;
+          border-bottom:1px solid var(--line); }
+  th:first-child,td:first-child { text-align:right; color:var(--ink3); width:1%; }
+  th:nth-child(2),td:nth-child(2) { text-align:left; }
+  thead th { position:sticky; top:0; background:var(--panel); z-index:1;
+             font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+             color:var(--ink2); font-weight:600; cursor:pointer; user-select:none; }
+  thead th:hover { color:var(--ink); }
+  thead th[aria-sort] { color:var(--accent); }
+  thead th .ar { opacity:.5; font-size:10px; margin-left:4px; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover td { background:color-mix(in srgb, var(--accent) 5%, transparent); }
+  .addr { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; }
+  .tag { display:inline-block; margin-left:8px; padding:1px 7px; border-radius:999px;
+         background:var(--accent-bg); color:var(--accent); font-size:11px; font-weight:600; }
+  .flag { color:var(--warn); margin-left:6px; cursor:help; }
+  .pos { color:var(--pos); } .neg { color:var(--neg); } .na { color:var(--ink3); }
+  .notes { margin-top:20px; color:var(--ink2); font-size:12.5px; max-width:78ch; }
+  .notes p { margin:.55em 0; }
+  code { font-family:ui-monospace,Menlo,monospace; font-size:12px; }
+  a { color:var(--accent); }
+  @media (max-width:640px) { .wrap{padding:20px 12px 48px;} .addr{font-size:11px;} }
+</style>
+
+<div class="wrap">
+<h1>buoy.finance — top 10 vaults by TVL</h1>
+<p class="sub">Generated 2026-09-13 13:38 UTC · time-weighted, net of fees and funding · click any column to sort</p>
+<div class="scroll"><table><thead><tr>
+<th data-nosort title="Rank by TVL">#</th>
+<th data-nosort>Address</th>
+<th title="">TVL</th>
+<th title="higher is better">TWR</th>
+<th title="higher is better">APR</th>
+<th title="higher is better">APY</th>
+<th title="lower is better">Max DD</th>
+<th title="higher is better">Sharpe</th>
+<th title="higher is better">Sortino</th>
+<th title="higher is better">Calmar</th>
+<th title="">Window</th>
+</tr></thead><tbody>
+<tr><td>1</td><td><span class="addr">0x8d76B763Ce5D6815a8C6F26BF1A595E39eba62Dd</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="13380.405368">$13,380</td>
+<td data-v="0.056370584810992996" class=pos>+5.64%</td>
+<td data-v="0.6949068851686135" class=pos>+69.49%</td>
+<td data-v="0.9660510902194872" class=pos>+96.61%</td>
+<td data-v="0.21125426830618357">21.13%</td>
+<td data-v="1.0597945809407656" class=pos>+1.06</td>
+<td data-v="0.9534519730697815" class=pos>+0.95</td>
+<td data-v="3.2894335851308956" class=pos>+3.29</td>
+<td data-v="29.60866253472222">29.6d</td>
+</tr>
+<tr><td>2</td><td><span class="addr">0x11a000f5cbbB9E97f18a03da189E88AA4c849aD9</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="4949.129269">$4,949</td>
+<td data-v="-0.14582210059206568" class=neg>-14.58%</td>
+<td data-v="-4.233177710818279" class=neg>-423.32%</td>
+<td data-v="-0.989699322001536" class=neg>-98.97%</td>
+<td data-v="0.0905081555598272">9.05%</td>
+<td data-v="-5.429718090278244" class=neg>-5.43</td>
+<td data-v="-5.785062226051552" class=neg>-5.79</td>
+<td data-v="-46.77122945036801" class=neg>-46.77</td>
+<td data-v="12.57331261574074">12.6d</td>
+</tr>
+<tr><td>3</td><td><span class="addr">0x3C8535595a962B8578647BDF7Ce4C7320af91b14</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="4937.367026">$4,937</td>
+<td data-v="0.1253720297528802" class=pos>+12.54%</td>
+<td data-v="1.5993092615984397" class=pos>+159.93%</td>
+<td data-v="3.5118983807216173" class=pos>+351.19%</td>
+<td data-v="0.048947982195675706">4.89%</td>
+<td data-v="3.666933882639404" class=pos>+3.67</td>
+<td data-v="7.097217964632513" class=pos>+7.10</td>
+<td data-v="32.673650472556766" class=pos>+32.67</td>
+<td data-v="28.612846782407406">28.6d</td>
+</tr>
+<tr><td>4</td><td><span class="addr">0x5616C9f81163AbE21eE986248AB95F37840CB02a</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="4784.779024">$4,785</td>
+<td data-v="-0.37755480705399413" class=neg>-37.76%</td>
+<td data-v="-5.8423078167199005" class=neg>-584.23%</td>
+<td data-v="-0.9993485108290382" class=neg>-99.93%</td>
+<td data-v="0.5281468958851275">52.81%</td>
+<td data-v="-4.7871079868184605" class=neg>-4.79</td>
+<td data-v="-3.3873584848395133" class=neg>-3.39</td>
+<td data-v="-11.061899373523172" class=neg>-11.06</td>
+<td data-v="23.587854131944447">23.6d</td>
+</tr>
+<tr><td>5</td><td><span class="addr">0x7c9bbcfd592dcf4b76F75219DDfd2C9F2188bAc5</span><span class="tag">ML Yield Hunter</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="4671.026374">$4,671</td>
+<td data-v="0.12121130517368717" class=pos>+12.12%</td>
+<td data-v="1.9580360799750496" class=pos>+195.80%</td>
+<td data-v="5.348143122555311" class=pos>+534.81%</td>
+<td data-v="0.1072663420147902">10.73%</td>
+<td data-v="2.620846329490004" class=pos>+2.62</td>
+<td data-v="2.509318554080754" class=pos>+2.51</td>
+<td data-v="18.25396525319256" class=pos>+18.25</td>
+<td data-v="22.59515380787037">22.6d</td>
+</tr>
+<tr><td>6</td><td><span class="addr">0xD2D28B042a99eD1e8Be3e3F5197Cc3327Dd03248</span><span class="flag" title="earlier data contained an impossible period return (a deposit inside a coarse API gap); figures are computed on the clean 24.6-day trailing window out of 30.6 days of history">✂</span></td>
+<td data-v="3846.618269">$3,847</td>
+<td data-v="-0.12389328087814844" class=neg>-12.39%</td>
+<td data-v="-1.839103544181232" class=neg>-183.91%</td>
+<td data-v="-0.8596211815273995" class=neg>-85.96%</td>
+<td data-v="0.35609890301834035">35.61%</td>
+<td data-v="-3.1712538852341297" class=neg>-3.17</td>
+<td data-v="-2.3112853168385996" class=neg>-2.31</td>
+<td data-v="-5.164586379213057" class=neg>-5.16</td>
+<td data-v="24.588635949074074">24.6d</td>
+</tr>
+<tr><td>7</td><td><span class="addr">0x3Bc0dc0F79421388aA10A9fDE393F73cE92B1dDE</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="3723.743226">$3,724</td>
+<td data-v="0.06799221946111311" class=pos>+6.80%</td>
+<td data-v="1.2040448731764943" class=pos>+120.40%</td>
+<td data-v="2.205530813894541" class=pos>+220.55%</td>
+<td data-v="0.10113789606917084">10.11%</td>
+<td data-v="2.958135847823077" class=pos>+2.96</td>
+<td data-v="2.392828794649083" class=pos>+2.39</td>
+<td data-v="11.90498240494361" class=pos>+11.90</td>
+<td data-v="20.61149103009259">20.6d</td>
+</tr>
+<tr><td>8</td><td><span class="addr">0xE18544A0DB06301f75bde5ea8b4EAAFf134726a8</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="3404.546102">$3,405</td>
+<td data-v="0.01257497730039736" class=pos>+1.26%</td>
+<td data-v="0.33686135647909204" class=pos>+33.69%</td>
+<td data-v="0.3976062261269282" class=pos>+39.76%</td>
+<td data-v="0.008434362137846358">0.84%</td>
+<td data-v="4.057464640623204" class=pos>+4.06</td>
+<td data-v="8.003208340425202" class=pos>+8.00</td>
+<td data-v="39.93916208168727" class=pos>+39.94</td>
+<td data-v="13.625388090277777">13.6d</td>
+</tr>
+<tr><td>9</td><td><span class="addr">0xad9EC77a455F25860F050DABFDb9FcFE547e1689</span><span class="flag" title="window under 30 days — annualised figures are fragile">†</span></td>
+<td data-v="2870.09611">$2,870</td>
+<td data-v="0.05322082509580062" class=pos>+5.32%</td>
+<td data-v="0.6792734279698192" class=pos>+67.93%</td>
+<td data-v="0.9383061314511474" class=pos>+93.83%</td>
+<td data-v="0.01798367918803887">1.80%</td>
+<td data-v="4.459103038483217" class=pos>+4.46</td>
+<td data-v="4.158669595339914" class=pos>+4.16</td>
+<td data-v="37.77166067450818" class=pos>+37.77</td>
+<td data-v="28.597616747685183">28.6d</td>
+</tr>
+<tr><td>10</td><td><span class="addr">0x38C820BC1776d759527050ad0bfb953eF2B39AA0</span><span class="flag" title="earlier data contained an impossible period return (a deposit inside a coarse API gap); figures are computed on the clean 38.6-day trailing window out of 45.6 days of history">✂</span></td>
+<td data-v="2271.020062">$2,271</td>
+<td data-v="0.18039213549929367" class=pos>+18.04%</td>
+<td data-v="1.7071139807009794" class=pos>+170.71%</td>
+<td data-v="3.80407945069682" class=pos>+380.41%</td>
+<td data-v="0.10228678515765448">10.23%</td>
+<td data-v="2.3666596708309435" class=pos>+2.37</td>
+<td data-v="4.525126322307159" class=pos>+4.53</td>
+<td data-v="16.689487093272184" class=pos>+16.69</td>
+<td data-v="38.56984958333334">38.6d</td>
+</tr>
+</tbody></table></div>
+<div class="notes">
+<p><strong>Returns are time-weighted.</strong> Per-period returns are chained over Hyperliquid's <code>pnlHistory</code>, which already excludes deposits and withdrawals. Naive equity growth is not return — on a funded vault it can read several hundred percent while the trading return is a few percent.</p>
+<p><strong>TVL rank is not a performance rank.</strong> The table is ordered by TVL because that is what buoy publishes directly; sort by any other column to rank on performance instead.</p>
+<p><strong>†</strong> window shorter than 30 days — annualising that is fragile, since a few early days on a small balance dominate the compounding. <strong>✂</strong> earlier history contained an impossible period return, so the figures come from the clean trailing window only — the Window column shows how much survived. <strong>⚠</strong> the chain is invalid or unavailable, so annualised columns are suppressed rather than printed from an impossible period return (usually a deposit landing between two API samples). Hover either mark for the reason.</p>
+<p>Vaults are identified by address only. Source: <a href="https://buoy.finance">buoy.finance</a> for the vault list and TVL, Hyperliquid's public portfolio endpoint for returns. Method and code: <a href="https://github.com/zwallfacer/vault-perf">zwallfacer/vault-perf</a>.</p>
+</div></div>
+<script>
+(function () {
+  var tb = document.querySelector("tbody"), ths = document.querySelectorAll("thead th");
+  function sortBy(i, dir) {
+    var rows = Array.prototype.slice.call(tb.rows);
+    rows.sort(function (a, b) {
+      var x = a.cells[i].dataset.v, y = b.cells[i].dataset.v;
+      // A suppressed or missing figure is not a small figure: park it at the bottom
+      // in BOTH directions rather than letting it win an ascending sort.
+      var nx = (x === "" || x === undefined), ny = (y === "" || y === undefined);
+      if (nx && ny) return 0;
+      if (nx) return 1;
+      if (ny) return -1;
+      return (parseFloat(x) - parseFloat(y)) * dir;
+    });
+    rows.forEach(function (r) { tb.appendChild(r); });
+  }
+  ths.forEach(function (th, i) {
+    if (th.dataset.nosort !== undefined) return;
+    th.addEventListener("click", function () {
+      var cur = th.getAttribute("aria-sort");
+      var dir = cur === "descending" ? 1 : -1;
+      ths.forEach(function (o) { o.removeAttribute("aria-sort");
+                                 var s = o.querySelector(".ar"); if (s) s.remove(); });
+      th.setAttribute("aria-sort", dir === -1 ? "descending" : "ascending");
+      var s = document.createElement("span");
+      s.className = "ar"; s.textContent = dir === -1 ? "\u25bc" : "\u25b2";
+      th.appendChild(s);
+      sortBy(i, dir);
+    });
+  });
+})();
+</script>

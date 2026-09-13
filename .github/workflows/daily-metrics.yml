@@ -1,4 +1,4 @@
-name: daily metrics
+name: Daily vault metrics
 
 # Harvests the fine (2.33h) equity window once a day and publishes ONLY the rolled-up
 # performance figures.
@@ -64,12 +64,6 @@ jobs:
           python vault_perf_github.py "$VAULT_ADDRESS" --harvest
           echo "archive: $(wc -l < vault_equity/${VAULT_ADDRESS,,}.jsonl) points"
 
-      - name: Save equity archive
-        uses: actions/cache/save@v6
-        with:
-          path: vault_equity
-          key: vault-equity-${{ github.run_id }}-${{ github.run_attempt }}
-
       - name: Render metrics
         env:
           VAULT_ADDRESS: ${{ secrets.VAULT_ADDRESS }}
@@ -95,6 +89,29 @@ jobs:
             echo "::error::an address leaked into the published files"; exit 1
           fi
 
+      # The leaderboard DOES publish addresses -- that is the point of it, and every one
+      # is already public on buoy.finance. It publishes no vault names: a vault is named
+      # by the only identifier that is unambiguous and self-verifiable, its address.
+      - name: Build buoy leaderboard
+        env:
+          VAULT_ADDRESS: ${{ secrets.VAULT_ADDRESS }}
+          VAULT_NAME: ${{ vars.VAULT_NAME || 'yours' }}
+          TOP_N: ${{ vars.TOP_N || '10' }}
+        run: |
+          python buoy_leaderboard.py --top "$TOP_N" --harvest \
+            --html docs/index.html \
+            --markdown LEADERBOARD.md \
+            --json docs/leaderboard.json
+          touch docs/.nojekyll
+
+      # Saved last, so the archive carries every vault the leaderboard harvested, not just
+      # the pinned one. Cache entries are immutable, hence the per-attempt key.
+      - name: Save equity archive
+        uses: actions/cache/save@v6
+        with:
+          path: vault_equity
+          key: vault-equity-${{ github.run_id }}-${{ github.run_attempt }}
+
       - name: Commit if changed
         run: |
           git config user.name  "github-actions[bot]"
@@ -112,7 +129,7 @@ jobs:
           git checkout -q -B main origin/main
           cp "$RUNNER_TEMP/METRICS.md" "$RUNNER_TEMP/metrics.json" .
 
-          git add METRICS.md metrics.json
+          git add METRICS.md metrics.json LEADERBOARD.md docs
           git diff --cached --quiet && { echo "no change"; exit 0; }
           git commit -q -m "metrics: $(date -u +%Y-%m-%d)"
           git push origin main

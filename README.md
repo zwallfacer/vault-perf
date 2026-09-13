@@ -135,6 +135,35 @@ larger time step is simply a larger step. An earlier design stored `(t0 → t1)`
 segments instead and needed a dynamic-programming tiling pass to avoid double
 counting; storing absolute points removes that problem rather than solving it.
 
+## The buoy leaderboard
+
+`buoy_leaderboard.py` ranks the top buoy.finance vaults by TVL and reports the same
+time-weighted metrics for each, so a TVL ranking can be re-sorted into a performance
+ranking.
+
+```
+./buoy_leaderboard.py --top 10 --pin 0xYOUR_VAULT --pin-label "Your vault" \
+    --html docs/index.html --markdown LEADERBOARD.md --json docs/leaderboard.json
+```
+
+- **Vaults are identified by address only.** Names are not published — the address is
+  the one identifier that is unambiguous and self-verifiable. `--pin` guarantees one
+  address is always in the table even if it falls out of the top N, and labels it.
+- **TVL rank is not a performance rank.** It leads because it is what buoy publishes
+  directly; the HTML table sorts on any column.
+- **Validity is per vault.** A chain containing an impossible period return — nearly
+  always a deposit landing inside one of the API's coarse `allTime` gaps — is re-chained
+  on the clean trailing window and marked `✂`, with the Window column showing how much
+  survived. If no clean window of at least 7 days remains, the annualised columns are
+  suppressed (`⚠`) rather than printed from a figure that cannot be true. A window under
+  30 days is marked `†`.
+
+Published outputs: `LEADERBOARD.md` (static, renders on GitHub), `docs/index.html`
+(sortable, served by GitHub Pages) and `docs/leaderboard.json`.
+
+To serve the sortable table: Settings → Pages → Source **Deploy from a branch** →
+branch `main`, folder `/docs`.
+
 ## Daily metrics via GitHub Actions
 
 `.github/workflows/daily-metrics.yml` harvests once a day and publishes **only the
