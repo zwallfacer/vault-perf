@@ -135,6 +135,37 @@ larger time step is simply a larger step. An earlier design stored `(t0 → t1)`
 segments instead and needed a dynamic-programming tiling pass to avoid double
 counting; storing absolute points removes that problem rather than solving it.
 
+## Daily metrics via GitHub Actions
+
+`.github/workflows/daily-metrics.yml` harvests once a day and publishes **only the
+rolled-up figures** — `METRICS.md` and `metrics.json`.
+
+What is and is not published:
+
+| | |
+|---|---|
+| published | TWR, APR, APY, max drawdown, Sharpe, Sortino, Calmar, window length, sample counts |
+| **not** published | the equity series itself, any account value, any P&L total, the address |
+
+The series lives in the **Actions cache**, which is not publicly downloadable, and
+stays `.gitignore`d. Absolute-dollar fields are stripped from `metrics.json` before
+commit — committed daily, an equity figure becomes a balance history in `git log`,
+which is exactly the granular disclosure a metrics report should avoid. A `grep`
+guard fails the run if an address ever reaches a published file.
+
+No fills, prices, sizes or positions are involved anywhere in this repository.
+
+Setup:
+
+1. Repository secret `VAULT_ADDRESS` — the public address to report on.
+2. Repository variable `VAULT_NAME` — the display name for the report.
+3. Settings → Actions → General → Workflow permissions → **Read and write**.
+
+Caches evict after 7 days without access, so a daily run keeps the archive warm. If
+the workflow breaks for longer the archive rebuilds from the API's current window —
+costing historical resolution, not correctness: the tool refuses to report rather
+than publish a figure it cannot stand behind.
+
 ## Requirements
 
 Python 3.11+ and `requests`. Nothing else.

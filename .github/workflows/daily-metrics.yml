@@ -1,0 +1,105 @@
+name: daily metrics
+
+# Harvests the fine (2.33h) equity window once a day and publishes ONLY the rolled-up
+# performance figures.
+#
+# WHAT IS AND IS NOT PUBLISHED
+#   published : METRICS.md + metrics.json — TWR/APR/APY/maxDD/Sharpe/Sortino/Calmar
+#   NOT published : the equity series itself (vault_equity/*.jsonl). It lives in the
+#                   Actions cache, which is not publicly downloadable, and stays
+#                   .gitignore'd. No fills, prices, sizes or positions are involved
+#                   anywhere in this repo.
+#
+# WHY THE CACHE AT ALL
+#   The API's allTime resolution decays with account age (a 428-day-old account gets
+#   7-day gaps), and coarse sampling invalidates a time-weighted return rather than
+#   merely blurring it. Harvesting the `week` window daily into a persistent archive
+#   keeps 2.33h resolution indefinitely. See the README.
+#
+#   Caches evict after 7 days without access — a daily run keeps this one warm. If the
+#   workflow is broken for longer than that the archive is lost and rebuilds from the
+#   API's current window, which costs historical resolution but not correctness: the
+#   tool refuses to report rather than publish a figure it cannot stand behind.
+
+on:
+  schedule:
+    - cron: "17 6 * * *"     # 06:17 UTC daily; off the hour to dodge scheduler congestion
+  workflow_dispatch:          # allow a manual run from the Actions tab
+
+permissions:
+  contents: write             # needed to commit METRICS.md / metrics.json
+
+concurrency:
+  group: daily-metrics        # never let two runs race the cache or the commit
+  cancel-in-progress: false
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet requests
+
+      # Restore the most recent archive. The key is unique per run so each run saves a
+      # NEW entry (cache entries are immutable); restore-keys falls back to the newest
+      # matching prefix, which is yesterday's.
+      - name: Restore equity archive
+        uses: actions/cache/restore@v4
+        with:
+          path: vault_equity
+          key: vault-equity-${{ github.run_id }}
+          restore-keys: |
+            vault-equity-
+
+      - name: Harvest
+        env:
+          VAULT_ADDRESS: ${{ secrets.VAULT_ADDRESS }}
+        run: |
+          test -n "$VAULT_ADDRESS" || { echo "::error::secret VAULT_ADDRESS is not set"; exit 1; }
+          python vault_perf_github.py "$VAULT_ADDRESS" --harvest
+          echo "archive: $(wc -l < vault_equity/${VAULT_ADDRESS,,}.jsonl) points"
+
+      - name: Save equity archive
+        uses: actions/cache/save@v4
+        with:
+          path: vault_equity
+          key: vault-equity-${{ github.run_id }}
+
+      - name: Render metrics
+        env:
+          VAULT_ADDRESS: ${{ secrets.VAULT_ADDRESS }}
+          VAULT_NAME: ${{ vars.VAULT_NAME || 'Vault' }}
+        run: |
+          python vault_perf_github.py "$VAULT_ADDRESS" --markdown "$VAULT_NAME" > METRICS.md
+          python vault_perf_github.py "$VAULT_ADDRESS" --json > /tmp/full.json
+          python - <<'PYEOF'
+          import json
+          d = json.load(open("/tmp/full.json"))
+          # Strip the address AND every absolute-dollar field. Committed daily, an equity
+          # figure becomes a balance history in `git log` — precisely the granular
+          # disclosure this report exists to avoid. Ratios, percentages and counts carry
+          # the performance story without the balance.
+          for k in ("address", "equity_first", "equity_last", "sum_pnl",
+                    "skipped_pnl", "daily_mean", "daily_sd"):
+              d.pop(k, None)
+          json.dump(d, open("metrics.json", "w"), indent=2, sort_keys=True)
+          open("metrics.json", "a").write("\n")
+          PYEOF
+          # Belt and braces: never commit a file carrying an address.
+          if grep -qE "0x[0-9a-fA-F]{40}" METRICS.md metrics.json; then
+            echo "::error::an address leaked into the published files"; exit 1
+          fi
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add METRICS.md metrics.json
+          git diff --cached --quiet && { echo "no change"; exit 0; }
+          git commit -m "metrics: $(date -u +%Y-%m-%d)"
+          git push

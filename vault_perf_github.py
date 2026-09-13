@@ -360,6 +360,57 @@ def render(res, addr, color=True):
                         f"  ->  APR {res['apr_7d'] * 100:+.1f}%", "yellow", on=color))
 
 
+def to_markdown(res, name):
+    """Headline metrics as Markdown. Deliberately emits NO time series and no address —
+    only the rolled-up figures, so a public report does not become a balance history."""
+    L=[]
+    gen = dt.datetime.now(dt.UTC).strftime("%Y-%m-%d %H:%M UTC")
+    L.append(f"# {name} — performance")
+    L.append("")
+    L.append(f"_Generated {gen} by [vault-perf](../../). Time-weighted, net of fees and funding._")
+    L.append("")
+    if not res["valid"]:
+        L.append("> **Not reportable.** The equity series is too coarsely sampled for a")
+        L.append("> time-weighted return to be meaningful — see the repository README for why")
+        L.append("> a sub-period past ±100% means the sample, not the account, is wrong.")
+        L.append("")
+        L.append(f"- periods: {res['n_periods']}, of which {res['n_extreme']} exceed ±50%")
+        return "\n".join(L) + "\n"
+    f_ = lambda v: f"{v:+.2f}" if v is not None else "n/a"
+    L.append("| metric | value |")
+    L.append("|---|---|")
+    L.append(f"| Time-weighted return | **{res['twr']*100:+.2f}%** |")
+    L.append(f"| APR (simple) | {res['apr']*100:+.1f}% |")
+    L.append(f"| APY (compounded) | {res['apy']*100:+.1f}% |" if res['apy'] is not None else "| APY | n/a |")
+    L.append(f"| Max drawdown | {res.get('max_dd',0)*100:.2f}% |")
+    L.append(f"| Sharpe (rf=0) | {f_(res.get('sharpe'))} |")
+    L.append(f"| Sortino (target=0) | {f_(res.get('sortino'))} |")
+    L.append(f"| Calmar (APR/maxDD) | {f_(res.get('calmar'))} |")
+    L.append("")
+    L.append(f"Window: **{res['days']:.1f} days**, {res['n_points']} samples, "
+             f"median gap {res['median_gap_h']:.2f}h.")
+    L.append("")
+    nd = res.get("n_daily_returns", 0)
+    if res["thin"]:
+        L.append(f"> ⚠️ **{res['days']:.0f}-day window.** Annualised figures are fragile at this")
+        L.append("> length — a few early days on a small balance can dominate the compounding.")
+        if res.get("apr_7d") is not None:
+            L.append(f"> Trailing 7d for comparison: TWR {res['twr_7d']*100:+.2f}% → APR {res['apr_7d']*100:+.1f}%.")
+        L.append("")
+    if nd and nd < 30:
+        L.append(f"> ⚠️ **{nd} daily observations.** Sharpe and Sortino need ~30+ to carry meaning;")
+        L.append("> a single outlier day moves them materially.")
+        L.append("")
+    if res["skipped_n"]:
+        L.append(f"> ⚠️ {res['skipped_n']} period(s) carrying ${res['skipped_pnl']:+,.2f} were excluded")
+        L.append(f"> (starting equity below ${MIN_EQUITY:.2f}). The figures above do not represent that P&L.")
+        L.append("")
+    L.append("Drawdown is measured on the time-weighted curve, not on account value — a")
+    L.append("drawdown measured on a funded balance is meaningless. Sharpe and Sortino")
+    L.append("resample to daily before annualising, because the raw sampling is irregular.")
+    return "\n".join(L) + "\n"
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="Time-weighted return / APR / APY / risk ratios for a Hyperliquid account.")
@@ -373,6 +424,9 @@ def main():
                     help="restrict the API side to ONE window. Default: allTime+month+week "
                          "normalised onto one scale, which is finer.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
+    ap.add_argument("--markdown", metavar="NAME",
+                    help="emit a Markdown metrics report under this display NAME. Contains "
+                         "only rolled-up figures: no time series, no address.")
     ap.add_argument("--no-color", action="store_true", help="disable ANSI color")
     a = ap.parse_args()
 
@@ -416,7 +470,9 @@ def main():
 
     res = chain(pts, src)
 
-    if a.json:
+    if a.markdown:
+        sys.stdout.write(to_markdown(res, a.markdown))
+    elif a.json:
         out = {k: v for k, v in res.items() if k not in ("periods", "extreme")}
         out["address"] = addr
         json.dump(out, sys.stdout, indent=2, default=float)
