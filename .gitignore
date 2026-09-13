@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Harvested equity archives. These are ACCOUNT DATA, not code: each line records an
+# account's equity and cumulative P&L at a point in time. Committing them publishes
+# the balance history of whatever address was harvested.
+#
+# If you WANT that — e.g. a CI job that harvests daily and publishes the series — then
+# force-add the specific file you intend to share:
+#     git add -f vault_equity/0x<address>.jsonl
+vault_equity/
+
+# macOS
+.DS_Store
