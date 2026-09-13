@@ -37,9 +37,9 @@ jobs:
   metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -49,7 +49,7 @@ jobs:
       # NEW entry (cache entries are immutable); restore-keys falls back to the newest
       # matching prefix, which is yesterday's.
       - name: Restore equity archive
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: vault_equity
           key: vault-equity-${{ github.run_id }}
@@ -65,7 +65,7 @@ jobs:
           echo "archive: $(wc -l < vault_equity/${VAULT_ADDRESS,,}.jsonl) points"
 
       - name: Save equity archive
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: vault_equity
           key: vault-equity-${{ github.run_id }}
