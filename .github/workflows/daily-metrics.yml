@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: vault_equity
-          key: vault-equity-${{ github.run_id }}
+          key: vault-equity-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
             vault-equity-
 
@@ -68,7 +68,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: vault_equity
-          key: vault-equity-${{ github.run_id }}
+          key: vault-equity-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Render metrics
         env:
@@ -99,7 +99,20 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Re-base the OUTPUT, not the commit. main can have moved since checkout -- a
+          # re-run replays an old SHA, and a human push can land mid-run -- and a plain
+          # push then fails non-fast-forward. Rebasing the commit would instead conflict
+          # on these very files. Moving to current main and re-applying the freshly
+          # rendered files is conflict-free by construction, and makes the "no change"
+          # test compare against what is actually published rather than against the
+          # snapshot this run started from.
+          cp METRICS.md metrics.json "$RUNNER_TEMP/"
+          git fetch -q origin main
+          git checkout -q -B main origin/main
+          cp "$RUNNER_TEMP/METRICS.md" "$RUNNER_TEMP/metrics.json" .
+
           git add METRICS.md metrics.json
           git diff --cached --quiet && { echo "no change"; exit 0; }
-          git commit -m "metrics: $(date -u +%Y-%m-%d)"
-          git push
+          git commit -q -m "metrics: $(date -u +%Y-%m-%d)"
+          git push origin main
