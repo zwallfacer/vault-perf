@@ -123,6 +123,7 @@ COLS = [
     ("sortino",     "Sortino",    "num",  "hi"),
     ("calmar",      "Calmar",     "num",  "hi"),
     ("days",        "Window",     "days", None),
+    ("sum_pnl",     "Net P&L",    "pnl",  "hi"),
 ]
 
 
@@ -142,6 +143,8 @@ def cell(row, key, kind):
         return "—", None
     if kind == "usd":
         return f"${v:,.0f}", v
+    if kind == "pnl":
+        return f"${v:+,.2f}", v
     if kind == "pct":
         return f"{v * 100:+.2f}%" if key != "max_dd" else f"{v * 100:.2f}%", v
     if kind == "days":
@@ -166,7 +169,7 @@ def rows_payload(rows, pin, pin_label):
             "error": m.get("error"),
             **{k: (None if "error" in m else m.get(k))
                for k in ("twr", "apr", "apy", "max_dd", "sharpe", "sortino", "calmar",
-                         "days", "n_points", "n_daily")},
+                         "days", "sum_pnl", "skipped_pnl", "n_points", "n_daily")},
         })
     return out
 
@@ -202,6 +205,11 @@ def render_markdown(rows, pin, pin_label, stamp):
           "⚠ chain invalid or unavailable — annualised columns suppressed rather than "
           "printed from an impossible period return (usually a deposit landing between "
           "two API samples).",
+          "",
+          "Net P&L is the realised dollar result over the same window as the other "
+          "columns -- net of fees and funding, deposits and withdrawals excluded. It is a "
+          "total, not a rate, so it is shown even where the annualised columns are "
+          "suppressed: it never divides by an equity figure.",
           "",
           "Returns are time-weighted: per-period returns chained over Hyperliquid's "
           "`pnlHistory`, which excludes deposits and withdrawals. TVL rank says nothing "
@@ -354,6 +362,12 @@ def render_html(rows, pin, pin_label, stamp):
             "over Hyperliquid's <code>pnlHistory</code>, which already excludes deposits and "
             "withdrawals. Naive equity growth is not return — on a funded vault it can read "
             "several hundred percent while the trading return is a few percent.</p>",
+            "<p><strong>Net P&amp;L</strong> is the realised dollar result over the same "
+            "window as the other columns — net of fees and funding, with deposits and "
+            "withdrawals excluded. It is a total rather than a rate, so it survives where "
+            "the annualised columns cannot: it never divides by an equity figure. A large "
+            "P&amp;L on a large vault is not the same achievement as the same figure on a "
+            "small one — read it against TVL, not on its own.</p>",
             "<p><strong>TVL rank is not a performance rank.</strong> The table is ordered by "
             "TVL because that is what buoy publishes directly; sort by any other column to "
             "rank on performance instead.</p>",

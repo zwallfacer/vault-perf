@@ -158,6 +158,10 @@ ranking.
   suppressed (`⚠`) rather than printed from a figure that cannot be true. A window under
   30 days is marked `†`.
 
+- **Net P&L** is the realised dollar result over the same window as the other columns,
+  net of fees and funding. It is a total rather than a rate, so it is shown even where
+  the annualised columns are suppressed — it never divides by an equity figure.
+
 Published outputs: `LEADERBOARD.md` (static, renders on GitHub), `docs/index.html`
 (sortable, served by GitHub Pages) and `docs/leaderboard.json`.
 
