@@ -1,22 +1,22 @@
 # ML Yield Hunter — performance
 
-_Generated 2026-09-15 08:53 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
+_Generated 2026-09-15 20:30 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
 
 | metric | value |
 |---|---|
-| Time-weighted return | **+13.26%** |
-| APR (simple) | +198.4% |
-| APY (compounded) | +544.2% |
+| Time-weighted return | **+11.44%** |
+| APR (simple) | +167.9% |
+| APY (compounded) | +390.1% |
 | Max drawdown | 10.73% |
-| Sharpe (rf=0) | +2.70 |
-| Sortino (target=0) | +2.29 |
-| Calmar (APR/maxDD) | +18.49 |
+| Sharpe (rf=0) | +2.39 |
+| Sortino (target=0) | +2.18 |
+| Calmar (APR/maxDD) | +15.65 |
 
-Window: **24.4 days**, 123 samples, median gap 2.33h.
+Window: **24.9 days**, 132 samples, median gap 2.33h.
 
-> ⚠️ **24-day window.** Annualised figures are fragile at this
+> ⚠️ **25-day window.** Annualised figures are fragile at this
 > length — a few early days on a small balance can dominate the compounding.
-> Trailing 7d for comparison: TWR +4.18% → APR +221.0%.
+> Trailing 7d for comparison: TWR +2.58% → APR +135.7%.
 
 > ⚠️ **24 daily observations.** Sharpe and Sortino need ~30+ to carry meaning;
 > a single outlier day moves them materially.
