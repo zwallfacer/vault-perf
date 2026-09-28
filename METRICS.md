@@ -1,20 +1,20 @@
 # ML Yield Hunter — performance
 
-_Generated 2026-09-27 20:30 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
+_Generated 2026-09-28 10:10 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
 
 | metric | value |
 |---|---|
-| Time-weighted return | **-2.00%** |
-| APR (simple) | -19.8% |
-| APY (compounded) | -18.1% |
+| Time-weighted return | **-2.05%** |
+| APR (simple) | -20.3% |
+| APY (compounded) | -18.5% |
 | Max drawdown | 16.21% |
 | Sharpe (rf=0) | +0.10 |
 | Sortino (target=0) | +0.10 |
-| Calmar (APR/maxDD) | -1.22 |
+| Calmar (APR/maxDD) | -1.25 |
 
-Window: **36.9 days**, 322 samples, median gap 2.00h.
+Window: **36.9 days**, 331 samples, median gap 2.00h.
 
-> ⚠️ 6 period(s) carrying $+0.03 were excluded
+> ⚠️ 13 period(s) carrying $+0.03 were excluded
 > (starting equity below $1.00). The figures above do not represent that P&L.
 
 Drawdown is measured on the time-weighted curve, not on account value — a
