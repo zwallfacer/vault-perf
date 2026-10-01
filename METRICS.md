@@ -1,6 +1,6 @@
 # ML Yield Hunter — performance
 
-_Generated 2026-09-30 22:18 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
+_Generated 2026-10-01 10:27 UTC by [vault-perf](../../). Time-weighted, net of fees and funding._
 
 | metric | value |
 |---|---|
@@ -12,9 +12,9 @@ _Generated 2026-09-30 22:18 UTC by [vault-perf](../../). Time-weighted, net of f
 | Sortino (target=0) | +0.10 |
 | Calmar (APR/maxDD) | -1.25 |
 
-Window: **36.9 days**, 372 samples, median gap 2.00h.
+Window: **36.9 days**, 379 samples, median gap 2.00h.
 
-> ⚠️ 49 period(s) carrying $+0.03 were excluded
+> ⚠️ 55 period(s) carrying $+0.03 were excluded
 > (starting equity below $1.00). The figures above do not represent that P&L.
 
 Drawdown is measured on the time-weighted curve, not on account value — a
